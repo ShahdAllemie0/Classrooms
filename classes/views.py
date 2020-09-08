@@ -131,8 +131,8 @@ def student_create(request, classroom_id):
 
 
 def student_update(request,classroom_id,student_id):
-	classroom_obj = Student.objects.get(id=student_id).classroom
-	if not request.user==classroom_obj.teacher:
+	classroom_obj = Classroom.objects.get(id=classroom_id)
+	if not request.user == classroom_obj.teacher:
 		return redirect('classroom_list')
 	student = Student.objects.get(id=student_id)
 
@@ -147,6 +147,7 @@ def student_update(request,classroom_id,student_id):
 	context = {
 	"form": form,
 	"student": student,
+	"classroom": classroom_obj
 	}
 	return render(request, 'student_update.html', context)
 
