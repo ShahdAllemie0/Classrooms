@@ -24,10 +24,14 @@ def classroom_detail(request, classroom_id):
 
 def classroom_create(request):
 	form = ClassroomForm()
+	if not request.user.is_authenticated:
+        return redirect('signin')
 	if request.method == "POST":
 		form = ClassroomForm(request.POST, request.FILES or None)
 		if form.is_valid():
-			form.save()
+			classroom = form.save(commit=False)
+            classroom.teacher = request.user
+            classroom.save()
 			messages.success(request, "Successfully Created!")
 			return redirect('classroom-list')
 		print (form.errors)
