@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 
-from .models import Classroom
-from .forms import ClassroomForm, SigninForm, SignupForm
+from .models import Classroom, Student
+from .forms import ClassroomForm, SigninForm, SignupForm, StudentForm
 
 def classroom_list(request):
 	classrooms = Classroom.objects.all()
@@ -16,8 +16,11 @@ def classroom_list(request):
 
 def classroom_detail(request, classroom_id):
 	classroom = Classroom.objects.get(id=classroom_id)
+	students = Student.objects.filter(classroom=classroom).order_by('name','-exam_grade')
+	# students.order_by('grade')
 	context = {
 		"classroom": classroom,
+		"students": students,
 	}
 	return render(request, 'classroom_detail.html', context)
 
@@ -25,13 +28,13 @@ def classroom_detail(request, classroom_id):
 def classroom_create(request):
 	form = ClassroomForm()
 	if not request.user.is_authenticated:
-        return redirect('signin')
+		return redirect('signin')
 	if request.method == "POST":
 		form = ClassroomForm(request.POST, request.FILES or None)
 		if form.is_valid():
 			classroom = form.save(commit=False)
-            classroom.teacher = request.user
-            classroom.save()
+			classroom.teacher = request.user
+			classroom.save()
 			messages.success(request, "Successfully Created!")
 			return redirect('classroom-list')
 		print (form.errors)
@@ -99,3 +102,24 @@ def signin(request):
 def signout(request):
     logout(request)
     return redirect("signin")
+
+
+def student_add(request, classroom_id):
+	classroom_obj = Classroom.objects.get(id=classroom_id)
+	form = StudentForm()
+	if not request.user.is_authenticated:
+		return redirect('signin')
+	if request.method == "POST":
+		form = StudentForm(request.POST)
+		if form.is_valid():
+			student_from = form.save(commit=False)
+			student_from.classroom = classroom_obj
+			student_from.save()
+			messages.success(request, "Successfully Added!")
+			return redirect('classroom-detail', classroom_obj.id)
+		print (form.errors)
+	context = {
+	"form": form,
+	"classroom": classroom_obj
+	}
+	return render(request, 'student_add.html', context)

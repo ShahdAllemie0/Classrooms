@@ -13,6 +13,8 @@ urlpatterns = [
     path('classrooms/create', views.classroom_create, name='classroom-create'),
     path('classrooms/<int:classroom_id>/update/', views.classroom_update, name='classroom-update'),
     path('classrooms/<int:classroom_id>/delete/', views.classroom_delete, name='classroom-delete'),
+    # add student page
+    path('classrooms/<int:classroom_id>/add_student/', views.student_add, name='student-add'),
 
     # auth links
     path('signup/',views.signup ,name='signup'),
