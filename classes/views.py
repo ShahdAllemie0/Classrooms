@@ -43,6 +43,11 @@ def classroom_create(request):
 	}
 	return render(request, 'create_classroom.html', context)
 
+	# Add Update and Delete buttons for every student, and remember that only the classroom’s teacher is allowed to
+	# Create, Update and Delete a Student from this classroom. Keep in mind that the Create, Update and Delete buttons will
+	#  only be visible to the classroom’s teacher. Also,
+	# make sure that the url names for these actions are as follows student-create, student-update, student-delete.
+
 
 def classroom_update(request, classroom_id):
 	classroom = Classroom.objects.get(id=classroom_id)
@@ -104,11 +109,11 @@ def signout(request):
     return redirect("signin")
 
 
-def student_add(request, classroom_id):
+def student_create(request, classroom_id):
 	classroom_obj = Classroom.objects.get(id=classroom_id)
 	form = StudentForm()
-	if not request.user.is_authenticated:
-		return redirect('signin')
+	if not request.user==classroom_obj.teacher:
+		return redirect('classroom_list')
 	if request.method == "POST":
 		form = StudentForm(request.POST)
 		if form.is_valid():
@@ -123,3 +128,32 @@ def student_add(request, classroom_id):
 	"classroom": classroom_obj
 	}
 	return render(request, 'student_add.html', context)
+
+
+def student_update(request,classroom_id,student_id):
+	classroom_obj = Student.objects.get(id=student_id).classroom
+	if not request.user==classroom_obj.teacher:
+		return redirect('classroom_list')
+	student = Student.objects.get(id=student_id)
+
+	form = StudentForm(instance=student)
+	if request.method == "POST":
+		form = StudentForm(request.POST, instance=student)
+		if form.is_valid():
+			form.save()
+			messages.success(request, "Successfully Edited!")
+			return redirect('classroom-list')
+		print (form.errors)
+	context = {
+	"form": form,
+	"student": student,
+	}
+	return render(request, 'student_update.html', context)
+
+def student_delete(request, classroom_id,student_id):
+	classroom_obj = Student.objects.get(id=student_id).classroom
+	if not request.user==classroom_obj.teacher:
+		return redirect('classroom_list')
+	Student.objects.get(id=student_id).delete()
+	messages.success(request, "Successfully Deleted!")
+	return redirect('classroom-list')

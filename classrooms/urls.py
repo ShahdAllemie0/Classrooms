@@ -14,7 +14,9 @@ urlpatterns = [
     path('classrooms/<int:classroom_id>/update/', views.classroom_update, name='classroom-update'),
     path('classrooms/<int:classroom_id>/delete/', views.classroom_delete, name='classroom-delete'),
     # add student page
-    path('classrooms/<int:classroom_id>/add_student/', views.student_add, name='student-add'),
+    path('classrooms/<int:classroom_id>/add_student/', views.student_create, name='student-create'),
+    path('classrooms/<int:classroom_id>/<int:student_id>/update_student/', views.student_update, name='student-update'),
+    path('classrooms/<int:classroom_id>/<int:student_id>/delete_student/', views.student_delete, name='student-delete'),
 
     # auth links
     path('signup/',views.signup ,name='signup'),
